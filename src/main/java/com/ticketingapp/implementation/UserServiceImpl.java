@@ -12,6 +12,7 @@ import com.ticketingapp.service.TaskService;
 import com.ticketingapp.service.UserService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,12 +25,14 @@ public class UserServiceImpl implements UserService {
     private MapperUtil mapperUtil;
     private ProjectService projectService;
     private TaskService taskService;
+    private PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, MapperUtil mapperUtil, @Lazy ProjectService projectService, TaskService taskService) {
+    public UserServiceImpl(UserRepository userRepository, MapperUtil mapperUtil, @Lazy ProjectService projectService, TaskService taskService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.mapperUtil = mapperUtil;
         this.projectService = projectService;
         this.taskService = taskService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -49,7 +52,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void save(UserDTO userDTO) {
-        userRepository.save(mapperUtil.convert(userDTO, new User()));
+        User user = mapperUtil.convert(userDTO, new User());
+        user.setEnabled(true);
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        userRepository.save(user);
     }
 
     @Override
@@ -57,6 +63,8 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUserName(userDTO.getUserName());
         User convertedUser = mapperUtil.convert(userDTO, new User());
         convertedUser.setId(user.getId());
+        convertedUser.setPassword(passwordEncoder.encode(convertedUser.getPassword()));
+        convertedUser.setEnabled(true);
         userRepository.save(convertedUser);
         return findByUserName(userDTO.getUserName());
     }

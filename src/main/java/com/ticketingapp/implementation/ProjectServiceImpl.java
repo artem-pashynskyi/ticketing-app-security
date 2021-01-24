@@ -11,6 +11,7 @@ import com.ticketingapp.service.ProjectService;
 import com.ticketingapp.service.TaskService;
 import com.ticketingapp.service.UserService;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -81,7 +82,8 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<ProjectDTO> listAllProjectDetails() {
-        UserDTO currentUserDTO = userService.findByUserName("john@gmail.com");
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserDTO currentUserDTO = userService.findByUserName(username);
         User user = mapperUtil.convert(currentUserDTO, new User());
         List<Project> projects = projectRepository.findByAssignedManager(user);
         return projects
@@ -99,6 +101,14 @@ public class ProjectServiceImpl implements ProjectService {
     public List<ProjectDTO> readAllByAssignedManager(User user) {
         List<Project> projects = projectRepository.findByAssignedManager(user);
         return projects
+                .stream()
+                .map(project -> mapperUtil.convert(project, new ProjectDTO()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ProjectDTO> listAllNonCompleteProjects() {
+        return projectRepository.findAllByProjectStatusIsNot(Status.COMPLETE)
                 .stream()
                 .map(project -> mapperUtil.convert(project, new ProjectDTO()))
                 .collect(Collectors.toList());

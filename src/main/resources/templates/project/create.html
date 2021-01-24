@@ -121,7 +121,17 @@
                                                     <td>
                                                         <a th:href="@{/project/edit/{id}(id=${project.projectCode})}"><button type="button" class="btn btn-warning rounded" th:disabled="${project.isComplete()}">Update</button></a>
                                                         <a th:href="@{/project/delete/{id}(id=${project.projectCode})}" class="delete-row"><button type="button" class="btn btn-danger rounded">Delete</button></a>
-                                                        <a th:href="@{/project/complete/{id}(id=${project.projectCode})}"><button type="button" class="btn btn-info rounded" th:disabled="${project.isComplete()}">Complete</button></a>
+                                                        <a th:if="${!project.isComplete() && project.unfinishedTasksCount == 0}"
+                                                           th:href="@{/project/complete/{id}(id=${project.projectCode})}">
+                                                            <button
+                                                                    class="btn btn-info rounded">Complete
+                                                            </button>
+                                                        </a>
+                                                        <a th:if="${project.isComplete() || project.unfinishedTasksCount > 0}">
+                                                            <button
+                                                                    class="btn btn-info rounded disabled-button">Complete
+                                                            </button>
+                                                        </a>
                                                     </td>
                                                 </tr>
                                                 </tbody>

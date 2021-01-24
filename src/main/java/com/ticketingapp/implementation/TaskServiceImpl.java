@@ -11,6 +11,7 @@ import com.ticketingapp.mapper.ProjectMapper;
 import com.ticketingapp.repository.TaskRepository;
 import com.ticketingapp.repository.UserRepository;
 import com.ticketingapp.service.TaskService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -102,7 +103,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskDTO> listAllTasksByStatusIsNot(Status status) {
-        User user = userRepository.findByUserName("tom@gmail.com");
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUserName(username);
         List<Task> tasks = taskRepository.findByTaskStatusIsNotAndAssignedEmployee(status, user);
         return tasks
                 .stream()
@@ -112,7 +114,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskDTO> listAllTasksByProjectManager() {
-        User user = userRepository.findByUserName("john@gmail.com");
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUserName(username);
         List<Task> tasks = taskRepository.findAllByProjectAssignedManager(user);
         return tasks
                 .stream()
@@ -131,7 +134,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskDTO> listAllTasksByStatus(Status status) {
-        User user = userRepository.findByUserName("tom@gmail.com");
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUserName(username);
         List<Task> tasks = taskRepository.findByTaskStatusAndAssignedEmployee(Status.COMPLETE, user);
         return tasks
                 .stream()
